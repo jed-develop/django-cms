@@ -581,6 +581,10 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
         if not self.publisher_is_draft:
             raise PublicIsUnmodifiable('The public instance cannot be published. Use draft.')
 
+        import cms.signals as cms_signals
+
+        cms_signals.pre_publish.send(sender=Page, instance=self, language=language)
+
         # publish, but only if all parents are published!!
         published = None
 
@@ -683,7 +687,6 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
             elif page.get_publisher_state(language) == PUBLISHER_STATE_PENDING:
                 page.publish(language)
                 # fire signal after publishing is done
-        import cms.signals as cms_signals
 
         cms_signals.post_publish.send(sender=Page, instance=self, language=language)
 
